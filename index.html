@@ -1,97 +1,369 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>2FA Code Generator</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background: linear-gradient(135deg, #4facfe, #00f2fe);
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover" />
+<title>2FA (TOTP) Generator — Mobile</title>
+<style>
+  :root{
+    --bg:#0f1724; --card:#0b1220; --muted:#9aa4b2; --accent:#6ee7b7; --glass: rgba(255,255,255,0.03);
+    --danger:#ff7b7b; --radius:14px; --gap:14px; --txt:#e6eef6;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#f6f8fb; --card:#ffffff; --muted:#556178; --accent:#0ea5a3; --glass: rgba(0,0,0,0.04);
+      --danger:#ef4444; --txt:#0b1822;
     }
-    .container {
-      background: #fff;
-      padding: 25px;
-      border-radius: 15px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-      text-align: center;
-      width: 320px;
-    }
-    h1 {
-      font-size: 22px;
-      margin-bottom: 20px;
-      color: #333;
-    }
-    .code {
-      font-size: 40px;
-      font-weight: bold;
-      letter-spacing: 4px;
-      margin: 20px 0;
-      color: #222;
-    }
-    button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .generate-btn {
-      background: #4facfe;
-      color: white;
-    }
-    .generate-btn:hover {
-      background: #3b8edc;
-    }
-    .copy-btn {
-      background: #00c853;
-      color: white;
-    }
-    .copy-btn:hover {
-      background: #009624;
-    }
-    .toast {
-      margin-top: 12px;
-      font-size: 14px;
-      color: #333;
-      display: none;
-    }
-  </style>
+  }
+
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+  body{
+    background: linear-gradient(180deg,#071023 0%, var(--bg) 100%);
+    color:var(--txt);
+    -webkit-font-smoothing:antialiased;
+    display:flex; align-items:flex-start; justify-content:center; padding:28px 14px;
+  }
+  .wrap{width:100%;max-width:740px;}
+  .card{
+    background:var(--card);
+    border-radius:20px;
+    padding:18px;
+    box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.03);
+  }
+
+  header.row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+  header h1{font-size:18px;margin:0;}
+  header p{margin:0;font-size:12px;color:var(--muted)}
+  .form{display:grid;gap:12px;}
+  label.small{display:block;font-size:12px;color:var(--muted); margin-bottom:6px;}
+  input[type="text"], select, .secret{
+    width:100%; padding:12px 14px; border-radius:12px; border:0; outline:none;
+    background:var(--glass); color:var(--txt); font-size:15px;
+    box-sizing:border-box;
+  }
+  .row{display:flex;gap:10px;align-items:center;}
+  .row .col{flex:1;}
+  .actions{display:flex;gap:10px;}
+  button{
+    background:linear-gradient(90deg,var(--accent), #2dd4bf);
+    border:0;padding:12px 14px;border-radius:12px;color:#022; font-weight:600;
+    font-size:15px; cursor:pointer;
+  }
+  .ghost{background:transparent;border:1px solid rgba(255,255,255,0.06); color:var(--txt); padding:10px 12px;}
+  .big-code{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:16px; border-radius:14px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    font-size:28px; letter-spacing:6px; font-weight:700;
+  }
+  .meta{display:flex;align-items:center;gap:12px;margin-top:10px; color:var(--muted); font-size:13px;}
+  .progress{
+    height:8px; background: rgba(255,255,255,0.04); border-radius:8px; overflow:hidden;
+    flex:1;
+  }
+  .bar{height:100%; width:0%; background:linear-gradient(90deg,var(--accent), #34d399);}
+  .small-btn{padding:8px 10px;border-radius:10px;font-size:13px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--txt)}
+  .hint{font-size:12px;color:var(--muted); margin-top:8px}
+  .footer{margin-top:12px;font-size:12px;color:var(--muted);text-align:center}
+  .flex-center{display:flex;align-items:center;justify-content:center;}
+  .copy-ok{color:var(--accent); font-weight:700}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;}
+  .secret-wrap{display:flex;gap:8px;align-items:center;}
+  .toggle{background:transparent;border:0;color:var(--muted);font-size:13px;padding:6px 8px;border-radius:10px}
+  .danger{background:var(--danger); color:white}
+  .logo{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,#134e4a,#0891b2);display:flex;align-items:center;justify-content:center;font-weight:700;color:white}
+  @media (max-width:420px){
+    body{padding:18px 10px;}
+    .big-code{font-size:22px}
+    header h1{font-size:16px}
+    button{font-size:14px;padding:10px 12px}
+  }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>2FA Code Generator</h1>
-    <div class="code" id="code">------</div>
-    <button class="generate-btn" onclick="generateCode()">Generate Code</button>
-    <button class="copy-btn" onclick="copyCode()">Copy Code</button>
-    <div class="toast" id="toast">✅ Code copied!</div>
+  <div class="wrap">
+    <div class="card" role="main" aria-label="2FA Generator card">
+      <div class="row" style="margin-bottom:12px;">
+        <div style="display:flex;gap:12px;align-items:center">
+          <div class="logo">2F</div>
+          <div>
+            <h1>2FA (TOTP) Generator</h1>
+            <p>Offline • Mobile-optimized • RFC 6238 (HMAC-SHA1)</p>
+          </div>
+        </div>
+        <div style="margin-left:auto;">
+          <button id="themeToggle" class="ghost small-btn" title="Toggle theme">Theme</button>
+        </div>
+      </div>
+
+      <div class="form">
+        <div>
+          <label class="small" for="secret">Secret (Base32) — Enter your seed</label>
+          <div class="secret-wrap">
+            <input id="secret" class="secret" type="text" inputmode="text" autocomplete="one-time-code" placeholder="JBSWY3DPEHPK3PXP or space-separated" />
+            <button id="pasteBtn" class="small-btn" title="Paste from clipboard">Paste</button>
+            <button id="clearBtn" class="small-btn" title="Clear">Clear</button>
+          </div>
+          <div class="hint">You can paste a Base32 secret (spaces allowed). Example: <span style="color:var(--accent)">JBSWY3DPEHPK3PXP</span></div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <label class="small" for="digits">Digits</label>
+            <select id="digits" class="secret">
+              <option value="6">6 digits (common)</option>
+              <option value="8">8 digits</option>
+            </select>
+          </div>
+          <div style="width:1px;background:rgba(255,255,255,0.02)"></div>
+          <div class="col">
+            <label class="small" for="period">Period (seconds)</label>
+            <select id="period" class="secret">
+              <option value="30">30s (standard)</option>
+              <option value="60">60s</option>
+              <option value="10">10s</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <div class="big-code" id="codeArea">
+            <div id="codeDisplay" class="flex-center" aria-live="polite">— — — — — —</div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;">
+              <button id="copyBtn" class="small-btn">Copy</button>
+              <button id="qrBtn" class="small-btn" title="Show otpauth URI (for QR)">URI</button>
+            </div>
+          </div>
+          <div class="meta">
+            <div class="flex-center">Time left: <strong id="timeLeft" style="margin-left:8px">—s</strong></div>
+            <div class="progress" aria-hidden="true" style="margin-left:8px">
+              <div class="bar" id="bar"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:6px;">
+          <div class="actions" style="width:100%">
+            <button id="genBtn">Generate Now</button>
+            <button id="hideBtn" class="ghost">Hide Secret</button>
+            <button id="saveBtn" class="ghost">Save (local)</button>
+            <button id="clearStorage" class="ghost danger">Delete saved</button>
+          </div>
+        </div>
+
+        <div class="hint">
+          Notes: This runs entirely in your browser (offline). Do not paste secrets you don't own. Saved secrets are stored locally on your device only.
+        </div>
+      </div>
+
+      <div class="footer">Made for phones • Works offline • Tap <em>URI</em> to copy otpauth: URI</div>
+    </div>
   </div>
 
-  <script>
-    function generateCode() {
-      let code = Math.floor(100000 + Math.random() * 900000);
-      document.getElementById("code").innerText = code;
-      document.getElementById("toast").style.display = "none";
-    }
+<script>
+/* ----- Utilities: Base32 decode & TOTP implementation using SubtleCrypto ----- */
 
-    function copyCode() {
-      let code = document.getElementById("code").innerText;
-      if (code === "------") return;
-      navigator.clipboard.writeText(code).then(() => {
-        let toast = document.getElementById("toast");
-        toast.style.display = "block";
-        setTimeout(() => toast.style.display = "none", 2000);
-      });
+/* Base32 decoder (RFC4648) — accepts spaces and lower/upper case */
+function base32ToBytes(b32){
+  if(!b32) return new Uint8Array();
+  b32 = b32.replace(/=+$/,'').replace(/\s+/g,'').toUpperCase();
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  let bits = 0, value = 0, index = 0;
+  const out = [];
+  for(let i=0;i<b32.length;i++){
+    const idx = alphabet.indexOf(b32[i]);
+    if(idx === -1) continue;
+    value = (value << 5) | idx;
+    bits += 5;
+    if(bits >= 8){
+      bits -= 8;
+      out.push((value >>> bits) & 0xFF);
     }
-  </script>
+  }
+  return new Uint8Array(out);
+}
+
+/* Convert number to 8-byte big-endian Uint8Array */
+function intToBytes(num){
+  const bytes = new Uint8Array(8);
+  for(let i=7;i>=0;i--){
+    bytes[i] = num & 0xff;
+    num = num >> 8;
+  }
+  return bytes;
+}
+
+/* HMAC-SHA1 using SubtleCrypto — returns Promise<Uint8Array> */
+async function hmacSha1(keyBytes, msgBytes){
+  const cryptoKey = await crypto.subtle.importKey("raw", keyBytes, {name:"HMAC", hash:"SHA-1"}, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", cryptoKey, msgBytes);
+  return new Uint8Array(sig);
+}
+
+/* TOTP generator: returns numeric string padded to digits */
+async function generateTOTP(base32secret, digits=6, period=30){
+  const key = base32ToBytes(base32secret);
+  if(!key || key.length===0) return null;
+  const now = Math.floor(Date.now() / 1000);
+  const counter = Math.floor(now / period);
+  const counterBytes = intToBytes(counter);
+  const hmac = await hmacSha1(key, counterBytes);
+  const offset = hmac[hmac.length - 1] & 0x0f;
+  const code = ((hmac[offset] & 0x7f) << 24) | ((hmac[offset+1] & 0xff) << 16) | ((hmac[offset+2] & 0xff) << 8) | (hmac[offset+3] & 0xff);
+  const otp = (code % (10 ** digits)).toString().padStart(digits,'0');
+  return {otp, now, counter};
+}
+
+/* ----- UI logic ----- */
+const secretEl = document.getElementById('secret');
+const genBtn = document.getElementById('genBtn');
+const codeDisplay = document.getElementById('codeDisplay');
+const timeLeft = document.getElementById('timeLeft');
+const bar = document.getElementById('bar');
+const copyBtn = document.getElementById('copyBtn');
+const digitsEl = document.getElementById('digits');
+const periodEl = document.getElementById('period');
+const pasteBtn = document.getElementById('pasteBtn');
+const clearBtn = document.getElementById('clearBtn');
+const hideBtn = document.getElementById('hideBtn');
+const saveBtn = document.getElementById('saveBtn');
+const clearStorage = document.getElementById('clearStorage');
+const qrBtn = document.getElementById('qrBtn');
+const themeToggle = document.getElementById('themeToggle');
+
+let lastGenerated = {otp:'',counter:-1};
+let hideSecret = false;
+let ticker = null;
+
+/* Generate & display */
+async function updateNow(showAnimation=true){
+  const secret = secretEl.value.trim();
+  const digits = parseInt(digitsEl.value,10);
+  const period = parseInt(periodEl.value,10);
+  if(!secret){
+    codeDisplay.textContent = '— — — — — —';
+    timeLeft.textContent = '—s';
+    bar.style.width = '0%';
+    return;
+  }
+  try{
+    const res = await generateTOTP(secret,digits,period);
+    if(!res) throw new Error('Invalid secret');
+    // Update code if changed
+    if(res.counter !== lastGenerated.counter || res.otp !== lastGenerated.otp){
+      lastGenerated = res;
+      codeDisplay.textContent = res.otp;
+      if(showAnimation){
+        codeDisplay.animate([{transform:'scale(0.96)'},{transform:'scale(1)'}],{duration:160});
+      }
+    }
+  }catch(e){
+    codeDisplay.textContent = 'Invalid secret';
+    timeLeft.textContent = '-';
+    bar.style.width='0%';
+    return;
+  }
+  // Update time left and progress
+  const now = Date.now();
+  const ms = now % (period*1000);
+  const left = Math.ceil((period*1000 - ms) / 1000);
+  timeLeft.textContent = `${left}s`;
+  const pct = ((period*1000 - ms) / (period*1000)) * 100;
+  bar.style.width = pct + '%';
+}
+
+/* Start ticking every 1s */
+function startTicker(){
+  if(ticker) clearInterval(ticker);
+  ticker = setInterval(()=> updateNow(false), 1000);
+  updateNow(false);
+}
+
+/* Buttons */
+genBtn.addEventListener('click', ()=> updateNow(true));
+pasteBtn.addEventListener('click', async ()=>{
+  try{
+    const text = await navigator.clipboard.readText();
+    if(text) secretEl.value = text.trim();
+    updateNow(true);
+  }catch(e){
+    alert('Clipboard access denied or not available.');
+  }
+});
+clearBtn.addEventListener('click', ()=>{ secretEl.value=''; updateNow(true); });
+
+copyBtn.addEventListener('click', async ()=>{
+  const code = codeDisplay.textContent.trim();
+  if(!code || code.includes('Invalid') || code.includes('—')) return;
+  try{
+    await navigator.clipboard.writeText(code);
+    copyBtn.textContent = 'Copied';
+    setTimeout(()=> copyBtn.textContent = 'Copy',900);
+  }catch(e){
+    alert('Unable to copy.');
+  }
+});
+
+/* hide/show secret */
+hideBtn.addEventListener('click', ()=>{
+  hideSecret = !hideSecret;
+  secretEl.type = hideSecret ? 'password' : 'text';
+  hideBtn.textContent = hideSecret ? 'Show Secret' : 'Hide Secret';
+});
+
+/* Save/Load local storage (device-only) */
+const STORAGE_KEY = 'totp_secrets_mobile_v1';
+saveBtn.addEventListener('click', ()=>{
+  const s = secretEl.value.trim();
+  if(!s) { alert('No secret to save'); return; }
+  localStorage.setItem(STORAGE_KEY, s);
+  saveBtn.textContent = 'Saved';
+  setTimeout(()=> saveBtn.textContent = 'Save (local)',1200);
+});
+clearStorage.addEventListener('click', ()=>{
+  localStorage.removeItem(STORAGE_KEY);
+  alert('Saved secret deleted (if any).');
+});
+
+/* Load from storage on start */
+(function loadLocal(){
+  const s = localStorage.getItem(STORAGE_KEY);
+  if(s) secretEl.value = s;
+})();
+
+/* otpauth URI generator (copy) */
+qrBtn.addEventListener('click', ()=>{
+  const secret = secretEl.value.trim();
+  if(!secret){ alert('Enter secret first'); return; }
+  const digits = digitsEl.value;
+  const period = periodEl.value;
+  // simple label
+  const label = encodeURIComponent('account');
+  const uri = `otpauth://totp/${label}?secret=${encodeURIComponent(secret.replace(/\s+/g,''))}&period=${period}&digits=${digits}&issuer=MyApp`;
+  navigator.clipboard.writeText(uri).then(()=> {
+    qrBtn.textContent = 'URI Copied';
+    setTimeout(()=> qrBtn.textContent = 'URI',900);
+  }).catch(()=> alert('Could not copy URI'));
+});
+
+/* Theme toggle: just toggles prefers-color-scheme override via class on html */
+themeToggle.addEventListener('click', ()=>{
+  const root = document.documentElement;
+  if(root.hasAttribute('data-theme')){ root.removeAttribute('data-theme'); themeToggle.textContent='Theme'; }
+  else { root.setAttribute('data-theme','light'); themeToggle.textContent='Light'; }
+});
+
+/* responsive: on period or digits change, regenerate */
+digitsEl.addEventListener('change', ()=> updateNow(true));
+periodEl.addEventListener('change', ()=> updateNow(true));
+
+/* Start */
+startTicker();
+
+/* Accessibility: quick keyboard generate (Enter) */
+secretEl.addEventListener('keydown', (e)=> { if(e.key === 'Enter') updateNow(true); });
+
+</script>
 </body>
 </html>
