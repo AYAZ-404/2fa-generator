@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2FA Code Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+    }
+    .container {
+      background: #fff;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      text-align: center;
+      width: 320px;
+    }
+    h1 {
+      font-size: 22px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    .code {
+      font-size: 40px;
+      font-weight: bold;
+      letter-spacing: 4px;
+      margin: 20px 0;
+      color: #222;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .generate-btn {
+      background: #4facfe;
+      color: white;
+    }
+    .generate-btn:hover {
+      background: #3b8edc;
+    }
+    .copy-btn {
+      background: #00c853;
+      color: white;
+    }
+    .copy-btn:hover {
+      background: #009624;
+    }
+    .toast {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #333;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>2FA Code Generator</h1>
+    <div class="code" id="code">------</div>
+    <button class="generate-btn" onclick="generateCode()">Generate Code</button>
+    <button class="copy-btn" onclick="copyCode()">Copy Code</button>
+    <div class="toast" id="toast">✅ Code copied!</div>
+  </div>
+
+  <script>
+    function generateCode() {
+      let code = Math.floor(100000 + Math.random() * 900000);
+      document.getElementById("code").innerText = code;
+      document.getElementById("toast").style.display = "none";
+    }
+
+    function copyCode() {
+      let code = document.getElementById("code").innerText;
+      if (code === "------") return;
+      navigator.clipboard.writeText(code).then(() => {
+        let toast = document.getElementById("toast");
+        toast.style.display = "block";
+        setTimeout(() => toast.style.display = "none", 2000);
+      });
+    }
+  </script>
+</body>
+</html>
