@@ -5,12 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2FA Code Generator</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
             font-family: 'Arial', sans-serif;
             background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
@@ -21,7 +15,6 @@
             justify-content: center;
             padding: 20px;
         }
-
         .container {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -29,182 +22,54 @@
             padding: 40px;
             max-width: 400px;
             width: 100%;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .header {
             text-align: center;
-            margin-bottom: 30px;
         }
-
         .header h1 {
-            font-size: 28px;
-            font-weight: 700;
+            font-size: 26px;
             background: linear-gradient(45deg, #00d4ff, #5b73e8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 10px;
         }
-
-        .header p {
-            color: #b0b0b0;
-            font-size: 14px;
-        }
-
-        .input-group {
-            margin-bottom: 25px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #e0e0e0;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
         .input-field {
             width: 100%;
-            padding: 15px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 14px;
             border-radius: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            color: #ffffff;
+            border: 2px solid rgba(255,255,255,0.2);
+            margin: 15px 0;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
             font-size: 16px;
             font-family: 'Courier New', monospace;
-            transition: all 0.3s ease;
-            letter-spacing: 2px;
         }
-
-        .input-field:focus {
-            outline: none;
-            border-color: #00d4ff;
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
-        }
-
-        .input-field::placeholder {
-            color: #666;
-            letter-spacing: normal;
-        }
-
-        .format-hint {
-            font-size: 12px;
-            color: #888;
-            margin-top: 5px;
-            font-style: italic;
-        }
-
         .generate-btn {
             width: 100%;
             padding: 15px;
-            background: linear-gradient(45deg, #00d4ff, #5b73e8);
             border: none;
             border-radius: 12px;
+            background: linear-gradient(45deg, #00d4ff, #5b73e8);
             color: white;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 25px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            margin-bottom: 20px;
         }
-
-        .generate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
-        }
-
-        .generate-btn:active {
-            transform: translateY(0);
-        }
-
-        .result-section {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
         .result-code {
-            font-family: 'Courier New', monospace;
             font-size: 32px;
             font-weight: bold;
             color: #00d4ff;
-            text-align: center;
+            text-shadow: 0 0 10px rgba(0,212,255,0.5);
+            font-family: 'Courier New', monospace;
             letter-spacing: 4px;
-            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
         }
-
-        .placeholder-text {
-            color: #666;
-            font-style: italic;
-            text-align: center;
-        }
-
-        .copy-btn {
-            width: 100%;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            color: #ffffff;
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .copy-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .copy-btn:active {
-            background: rgba(0, 212, 255, 0.3);
-        }
-
-        .error {
-            color: #ff6b6b;
-            background: rgba(255, 107, 107, 0.1);
-            border: 1px solid rgba(255, 107, 107, 0.3);
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-            text-align: center;
-            font-size: 14px;
-        }
-
         .success {
             color: #51cf66;
-            background: rgba(81, 207, 102, 0.1);
-            border: 1px solid rgba(81, 207, 102, 0.3);
-            padding: 10px;
-            border-radius: 8px;
             margin-top: 10px;
-            text-align: center;
-            font-size: 12px;
+            font-size: 14px;
         }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 30px 20px;
-            }
-            
-            .header h1 {
-                font-size: 24px;
-            }
-            
-            .result-code {
-                font-size: 28px;
-                letter-spacing: 2px;
-            }
+        .error {
+            color: #ff6b6b;
+            margin-top: 10px;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -214,65 +79,31 @@
             <h1>🔐 2FA Generator</h1>
             <p>Generate Time-based One-Time Passwords</p>
         </div>
-        
-        <div class="input-group">
-            <label for="secretKey">Secret Key</label>
-            <input 
-                type="text" 
-                id="secretKey" 
-                class="input-field"
-                placeholder="ABCD EFGH IJKL MNOP..."
-                autocomplete="off"
-                spellcheck="false"
-            >
-            <div class="format-hint">Supports keys with or without spaces and dashes</div>
-        </div>
-        
-        <button class="generate-btn" onclick="generateCode()">
-            Generate Code
-        </button>
-        
-        <div class="result-section">
-            <div id="result" class="placeholder-text">
-                Your 6-digit code will appear here
-            </div>
-        </div>
-        
-        <button class="copy-btn" id="copyBtn" onclick="copyToClipboard()" style="display: none;">
-            📋 Copy Code
-        </button>
-        
+
+        <input type="text" id="secretKey" class="input-field" placeholder="Enter your secret key...">
+
+        <button class="generate-btn" onclick="generateCode()">Generate Code</button>
+
+        <div id="result" class="result-code">------</div>
         <div id="message"></div>
     </div>
 
     <script>
-        // Base32 decoding function
+        // Base32 decode
         function base32Decode(base32) {
             const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-            let bits = '';
-            let hex = '';
-
-            // Clean the input: remove spaces, dashes, and other non-base32 characters
-            base32 = base32.replace(/[^A-Z2-7]/gi, '').toUpperCase();
-            
-            // Remove padding
-            base32 = base32.replace(/=+$/, '');
-
+            let bits = '', hex = '';
+            base32 = base32.replace(/[^A-Z2-7]/gi, '').toUpperCase().replace(/=+$/, '');
             for (let i = 0; i < base32.length; i++) {
                 const val = alphabet.indexOf(base32.charAt(i));
-                if (val === -1) throw new Error('Invalid base32 character: ' + base32.charAt(i));
+                if (val === -1) throw new Error('Invalid base32 character');
                 bits += val.toString(2).padStart(5, '0');
             }
-
             for (let i = 0; i + 8 <= bits.length; i += 8) {
-                const chunk = bits.substr(i, 8);
-                hex += parseInt(chunk, 2).toString(16).padStart(2, '0');
+                hex += parseInt(bits.substr(i, 8), 2).toString(16).padStart(2, '0');
             }
-
             return hex;
         }
-
-        // Convert hex string to byte array
         function hexToBytes(hex) {
             const bytes = [];
             for (let i = 0; i < hex.length; i += 2) {
@@ -280,124 +111,47 @@
             }
             return new Uint8Array(bytes);
         }
-
-        // HMAC-SHA1 implementation
         async function hmacSHA1(key, message) {
-            const cryptoKey = await crypto.subtle.importKey(
-                'raw',
-                key,
-                { name: 'HMAC', hash: 'SHA-1' },
-                false,
-                ['sign']
-            );
-            
+            const cryptoKey = await crypto.subtle.importKey('raw', key, { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']);
             const signature = await crypto.subtle.sign('HMAC', cryptoKey, message);
             return new Uint8Array(signature);
         }
-
-        // Generate TOTP
-        async function generateTOTP(secret, window = 0) {
-            try {
-                // Decode the base32 secret (now handles spaces and formatting)
-                const keyHex = base32Decode(secret);
-                const key = hexToBytes(keyHex);
-
-                // Get current time window (30-second intervals)
-                const epoch = Math.floor(Date.now() / 1000);
-                const timeWindow = Math.floor(epoch / 30) + window;
-
-                // Convert time window to 8-byte array
-                const timeBuffer = new ArrayBuffer(8);
-                const timeView = new DataView(timeBuffer);
-                timeView.setUint32(4, timeWindow, false);
-
-                // Generate HMAC-SHA1
-                const hmac = await hmacSHA1(key, new Uint8Array(timeBuffer));
-
-                // Dynamic truncation
-                const offset = hmac[hmac.length - 1] & 0x0f;
-                const code = (
-                    ((hmac[offset] & 0x7f) << 24) |
-                    ((hmac[offset + 1] & 0xff) << 16) |
-                    ((hmac[offset + 2] & 0xff) << 8) |
-                    (hmac[offset + 3] & 0xff)
-                ) % 1000000;
-
-                return code.toString().padStart(6, '0');
-            } catch (error) {
-                throw new Error('Invalid secret key format: ' + error.message);
-            }
+        async function generateTOTP(secret) {
+            const key = hexToBytes(base32Decode(secret));
+            const epoch = Math.floor(Date.now() / 1000);
+            const timeWindow = Math.floor(epoch / 30);
+            const timeBuffer = new ArrayBuffer(8);
+            new DataView(timeBuffer).setUint32(4, timeWindow, false);
+            const hmac = await hmacSHA1(key, new Uint8Array(timeBuffer));
+            const offset = hmac[hmac.length - 1] & 0xf;
+            const code = ((hmac[offset] & 0x7f) << 24 |
+                          (hmac[offset+1] & 0xff) << 16 |
+                          (hmac[offset+2] & 0xff) << 8 |
+                          (hmac[offset+3] & 0xff)) % 1000000;
+            return code.toString().padStart(6, '0');
         }
-
-        // Generate and display code
         async function generateCode() {
             const secretKey = document.getElementById('secretKey').value.trim();
             const resultDiv = document.getElementById('result');
-            const messageDiv = document.getElementById('message');
-            const copyBtn = document.getElementById('copyBtn');
-
-            // Clear previous messages
-            messageDiv.innerHTML = '';
-
+            const msgDiv = document.getElementById('message');
+            msgDiv.innerHTML = '';
             if (!secretKey) {
-                showError('Please enter a secret key');
+                msgDiv.innerHTML = '<div class="error">Please enter a secret key</div>';
                 return;
             }
-
             try {
                 const code = await generateTOTP(secretKey);
-                resultDiv.innerHTML = `<div class="result-code">${code}</div>`;
-                copyBtn.style.display = 'block';
-                
-                // Auto-refresh every 30 seconds
-                setTimeout(() => generateCode(), 30000);
-                
-            } catch (error) {
-                showError('Invalid secret key format. Please check your key and try again.');
-                resultDiv.innerHTML = '<div class="placeholder-text">Invalid secret key</div>';
-                copyBtn.style.display = 'none';
+                resultDiv.textContent = code;
+                // Auto copy
+                await navigator.clipboard.writeText(code);
+                msgDiv.innerHTML = '<div class="success">✅ Code generated & copied!</div>';
+                // Refresh every 30s automatically
+                setTimeout(generateCode, 30000);
+            } catch (err) {
+                msgDiv.innerHTML = '<div class="error">Invalid key format</div>';
+                resultDiv.textContent = '------';
             }
         }
-
-        // Copy to clipboard
-        async function copyToClipboard() {
-            const resultCode = document.querySelector('.result-code');
-            if (resultCode) {
-                try {
-                    await navigator.clipboard.writeText(resultCode.textContent);
-                    showSuccess('Code copied to clipboard!');
-                } catch (error) {
-                    // Fallback for older browsers
-                    const textArea = document.createElement('textarea');
-                    textArea.value = resultCode.textContent;
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textArea);
-                    showSuccess('Code copied to clipboard!');
-                }
-            }
-        }
-
-        // Show error message
-        function showError(message) {
-            const messageDiv = document.getElementById('message');
-            messageDiv.innerHTML = `<div class="error">${message}</div>`;
-        }
-
-        // Show success message
-        function showSuccess(message) {
-            const messageDiv = document.getElementById('message');
-            messageDiv.innerHTML = `<div class="success">${message}</div>`;
-            setTimeout(() => messageDiv.innerHTML = '', 3000);
-        }
-
-        // Allow Enter key to generate code
-        document.getElementById('secretKey').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                generateCode();
-            }
-        });
     </script>
 </body>
 </html>
